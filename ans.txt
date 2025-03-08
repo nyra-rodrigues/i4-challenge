@@ -1,0 +1,6 @@
+Identifying Peak Congestion Times
+What are the peak traffic hours for different locations?
+Are there consistent congestion patterns across all locations, or do they vary significantly?
+How does traffic volume vary by time of day (morning, afternoon, evening, night)?
+Do weekdays have higher congestion than weekends?
+Are there specific hours where bus congestion is more pronounced?
