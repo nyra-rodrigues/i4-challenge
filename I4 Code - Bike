@@ -1,0 +1,123 @@
+import pandas as pd
+import folium
+from folium.plugins import HeatMap
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Step 1: Load the data into a pandas DataFrame
+df = pd.read_csv("University_Dataset(tmc_raw_data_2020_2029).csv")
+
+    
+## Which intersections experience the highest number of approaching vehicles?
+
+# Step 1: Sum the vehicle volumes from each approach (north, south, east, west)
+df['total_approaching_cars'] = (df['n_appr_cars_r'] +
+                                    df['n_appr_cars_t'] +
+                                    df['n_appr_cars_l'] +
+                                    df['s_appr_cars_r'] +
+                                    df['s_appr_cars_t'] +
+                                    df['s_appr_cars_l'] +
+                                    df['w_appr_cars_r'] +
+                                    df['w_appr_cars_t'] +
+                                    df['w_appr_cars_l'] +
+                                    df['e_appr_cars_r'] +
+                                    df['e_appr_cars_t'] +
+                                    df['e_appr_cars_l'])
+
+df['total_approaching_trucks'] = (df['n_appr_truck_r'] +
+                                    df['n_appr_truck_t'] +
+                                    df['n_appr_truck_l'] +
+                                    df['s_appr_truck_r'] +
+                                    df['s_appr_truck_t'] +
+                                    df['s_appr_truck_l'] +
+                                    df['w_appr_truck_r'] +
+                                    df['w_appr_truck_t'] +
+                                    df['w_appr_truck_l'] +
+                                    df['e_appr_truck_r'] +
+                                    df['e_appr_truck_t'] +
+                                    df['e_appr_truck_l'])
+
+df['total_approaching_bike'] = (df['n_appr_bike'] +
+                                    df['s_appr_bike'] +
+                                    df['e_appr_bike'] +
+                                    df['w_appr_bike'])
+
+df['total_approaching_ped'] = (df['n_appr_peds'] +
+                                    df['s_appr_peds'] +
+                                    df['e_appr_peds'] +
+                                    df['w_appr_peds'])
+
+df['total_approaching_bus'] = (df['n_appr_bus_r'] +
+                                    df['n_appr_bus_t'] +
+                                    df['n_appr_bus_l'] +
+                                    df['s_appr_bus_r'] +
+                                    df['s_appr_bus_t'] +
+                                    df['s_appr_bus_l'] +
+                                    df['w_appr_bus_r'] +
+                                    df['w_appr_bus_t'] +
+                                    df['w_appr_bus_l'] +
+                                    df['e_appr_bus_r'] +
+                                    df['e_appr_bus_t'] +
+                                    df['e_appr_bus_l'])
+
+df['total_approaching_vehicles'] = (df['total_approaching_bus'] +
+                                    df['total_approaching_trucks'] +
+                                    df['total_approaching_cars'])
+
+df['total_approaching_ped_and_bike'] = (df['total_approaching_ped'] +
+                                    df['total_approaching_bike'])
+
+# saving these new columns
+df = df.sort_values(by='total_approaching_vehicles', ascending=False, inplace=False)
+df.to_csv("total_vehicles_columns_added.csv", index=False)
+
+
+
+
+# Filter dataset where 'total_approaching_vehicles' is >= 1000
+filtered_df = df[df['total_approaching_vehicles']>= 1400]
+print(filtered_df['location_name'].nunique())
+
+
+## graph
+frequency = filtered_df['location_name'].value_counts()
+
+
+plt.figure(figsize=(8, 6))  # Optional: Adjust the size of the plot
+frequency.plot(kind='bar', color='skyblue', edgecolor='black')
+
+# Step 3: Customize the graph (optional)
+plt.title('Frequency of Each Location', fontsize=14)
+plt.xlabel('Location', fontsize=12)
+plt.ylabel('Frequency', fontsize=12)
+
+plt.savefig('bar_graph.png', dpi=300, bbox_inches='tight')  # Save as PNG with high quality
+
+
+# Show the plot
+#plt.xticks(rotation=45)  # Optional: Rotate x-axis labels for better readability
+#plt.show()
+
+
+
+# Step 2: Prepare the data for each direction
+# For each direction (north, south, east, west), extract the coordinates and volume data
+directions = ['total_approaching_cars', 'total_approaching_trucks', 'total_approaching_bus', 'total_approaching_bike','total_approaching_ped','total_approaching_vehicles','total_approaching_ped_and_bike']
+direction_data = {}
+
+# Filter out rows with missing latitude, longitude, or vehicle data for each direction
+for direction in directions:
+    heatmap_data = df[['latitude', 'longitude', direction]].dropna(subset=['latitude', 'longitude', direction])
+    direction_data[direction] = heatmap_data[['latitude', 'longitude', direction]].values.tolist()
+
+# Step 3: Create heatmaps for each direction
+for direction in directions:
+    # Step 4: Create a base map centered around the mean latitude and longitude
+    m = folium.Map(location=[df['latitude'].mean(), df['longitude'].mean()], zoom_start=12)
+
+    # Step 5: Add the HeatMap layer for this direction
+    HeatMap(direction_data[direction], radius=15).add_to(m)
+    
+# Step 6: Save the map as an HTML file
+    m.save(f"{direction}_heatmap.html")
+    
