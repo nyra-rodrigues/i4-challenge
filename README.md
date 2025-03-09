@@ -9,7 +9,7 @@ This project focuses on analyzing real-time traffic data from multiple intersect
 - **Traffic Data Analysis**: Analyzed vehicle, pedestrian, and bike traffic data from various intersections.
 - **Congestion Pattern Identification**: Identified key areas and times of traffic slowdowns and bottlenecks.
 - **Route Optimization**: Developed data-driven solutions to optimize bus routes and improve traffic flow at critical points in the city.
-- **Visualization**: Utilized various data visualization techniques to present the findings clearly and effectively, including heatmaps, time-series analysis, and congestion charts.
+- **Visualization**: Utilized various data visualization techniques to present the findings clearly and effectively, including heatmaps.
 
 ## Technologies Used
 
